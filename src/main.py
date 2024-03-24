@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 ''' Defining variables and necessary randomly generated parameters '''
 # Define the problem parameters
-num_customers = 3
+num_customers = 15
 max_vehicles = 4
 min_demand = 1
 max_demand = 20
@@ -147,7 +147,6 @@ def mutate(chromosome):
     if random.random() < mutation_rate:
         # Select a mutation type randomly from swap, reverse, shuffle
         mutation_type = random.choice(["swap", "reverse", "shuffle"])
-        
         # Apply the selected mutation type
         if mutation_type == "swap":
             return swap_mutation(chromosome)
@@ -155,7 +154,6 @@ def mutate(chromosome):
             return reverse_sequence_mutation(chromosome)
         elif mutation_type == "shuffle":
             return shuffle_mutation(chromosome)
-
     return chromosome
 
 ''' Main genetic algorithm function '''
@@ -181,9 +179,9 @@ def genetic_algorithm():
         # Records the best fitness value for the current generation
         best_fitnesses.append(max([evaluate_fitness(chromosome)[0] for chromosome in population]))
         # Records routes lengths
-        routes_lengths.append(sum(sum(distance_matrix[i][j] for i, j in zip(route, route[1:])) for route in population)/100)
+        routes_lengths.append(round(1/best_fitnesses[-1], 2))
         # Print actual values of generation
-        print(f"Generation {generation}, Best Fitness: {best_fitnesses[generation]}, Route Length: {round(routes_lengths[generation], 2)}")
+        print(f"Generation {generation + 1}, Best Fitness: {best_fitnesses[generation]}, Route Length: {routes_lengths[generation]}")
     # Identifies the best chromosome in the final population
     best_chromosome = max(population, key=lambda x: evaluate_fitness(x)[0])
     # Calculates fitness and routes for the best chromosome
@@ -227,6 +225,7 @@ def plot_routes(routes, title):
 def main():
     # Main function to execute the genetic algorithm and plot the results
     best_fitness, best_routes, best_fitnesses, route_init, routes_lengths = genetic_algorithm()
+    
     # Prints the best route and its fitness
     color_names = ['red', 'green', 'blue', 'cyan', 'magenta', 'yellow', 'black']
     for id, route in enumerate(best_routes):
@@ -234,6 +233,7 @@ def main():
             print(f"Route for {color_names[id]}: {route}")
     print("Best Fitness:", best_fitness)
 
+    # Calculate total sum of all demands
     print(f"Sum of all demands: {sum(customer_demands)}")
     
     # Calculate total initial length traveled by all vehicles
@@ -250,22 +250,21 @@ def main():
     # Plots the best routes
     plot_routes(best_routes, title=f'Best Routes, Total Length: {round(total_distance_traveled, 2)}')
 
-    plt.figure('Road length per Generation')
     # Plots the evolution of best fitness over generations
+    plt.figure('Road length per Generation')
     plt.plot(routes_lengths)
     plt.title('Road length per Generation')
     plt.xlabel('Generation')
     plt.ylabel('Road length')
     plt.draw()
 
-    plt.figure('Best Fitness per Generation')
     # Plots the evolution of best fitness over generations
+    plt.figure('Best Fitness per Generation')
     plt.plot(best_fitnesses)
     plt.title('Best Fitness per Generation')
     plt.xlabel('Generation')
     plt.ylabel('Fitness')
     plt.show()
-
 
 if __name__ == "__main__":
     main()
