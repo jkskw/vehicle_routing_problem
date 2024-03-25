@@ -1,11 +1,12 @@
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+import time
 
 ''' Defining variables and necessary randomly generated parameters '''
 # Define the problem parameters
 num_customers = 15
-max_vehicles = 2
+max_vehicles = 20
 min_demand = 1
 max_demand = 20
 # Depot location
@@ -29,11 +30,11 @@ customer_demands = np.random.randint(min_demand, max_demand, size=num_customers)
 
 " Vehicle capacities - user defined "
 # User input - vehicle_capacities [<vehicle1>, <cehicle2>, ...]
-vehicle_capacities = [100,100,100,100,100,100,100,100,100,100]
+vehicle_capacities = [100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100]
 
 # Genetic Algorithm Parameters
 population_size = 50
-num_generations = 300
+num_generations = 1000
 mutation_rate = 0.1
 elite_percentage = 0.1
 
@@ -104,20 +105,17 @@ def elitism(population):
     return elite
 
 ''' Crossover functions '''
-def crossover(parent1, parent2, crossover_type = "CX"):
+def crossover(parent1, parent2):
+    crossover_type = random.choice(["OX", "PD", "PMX", "CX"])
     if crossover_type == "OX":  # Order Crossover (OX) 
         return order_crossover(parent1, parent2)
     if crossover_type == "PD":  # Partially Divided Crossover (PD) 
         return pd_crossover(parent1,parent2)
     elif crossover_type == "PMX":  # Partially Mapped Crossover (PMX) 
         return pmx_crossover(parent1, parent2)
-    elif crossover_type == "ERX":  # Edge Recombination Crossover (ERX)
-        return erx_crossover(parent1, parent2)
     elif crossover_type == "CX":  # Cycle Crossover (CX) 
         return cycle_crossover(parent1, parent2)
-    elif crossover_type == "AEX":  # Alternating Edges Crossover (AEX) 
-        return aex_crossover(parent1, parent2)
-
+    
 def order_crossover(parent1, parent2):
     # Order Crossover (OX)
     crossover_point1 = np.random.randint(0, len(parent1))
@@ -184,45 +182,6 @@ def pmx_crossover(parent1, parent2):
             child2[i] = mapping2[child2[i]]
     return child1, child2
 
-def erx_crossover(parent1, parent2):
-    # Edge Recombination Crossover (ERX)
-    adjacency_list = {}
-    for gene1, gene2 in zip(parent1, parent1[1:] + [parent1[0]]):
-        adjacency_list.setdefault(gene1, set()).add(gene2)
-        adjacency_list.setdefault(gene2, set()).add(gene1)
-    for gene1, gene2 in zip(parent2, parent2[1:] + [parent2[0]]):
-        adjacency_list.setdefault(gene1, set()).add(gene2)
-        adjacency_list.setdefault(gene2, set()).add(gene1)
-    def select_edge(current_gene):
-        # Check if the adjacency list for the current gene is empty
-        if current_gene not in adjacency_list or not adjacency_list[current_gene]:
-            # If empty, return a random adjacent gene
-            return random.choice(parent1)  # Or parent2, depending on the preference
-        # Otherwise, select the adjacent gene with the fewest connections
-        return min(adjacency_list[current_gene], key=lambda x: len(adjacency_list[x]))
-    def remove_gene(gene):
-        for neighbours in adjacency_list.values():
-            if gene in neighbours:
-                neighbours.remove(gene)
-    child1 = [parent1[0]]
-    child2 = [parent2[0]]
-    for _ in range(len(parent1) - 1):
-        current_gene_child1 = child1[-1]
-        current_gene_child2 = child2[-1]
-        edge_child1 = select_edge(current_gene_child1)
-        edge_child2 = select_edge(current_gene_child2)
-        if len(adjacency_list[edge_child1]) < len(adjacency_list[edge_child2]):
-            child1.append(edge_child1)
-            remove_gene(edge_child1)
-            child2.append(edge_child1)
-            remove_gene(edge_child1)
-        else:
-            child1.append(edge_child2)
-            remove_gene(edge_child2)
-            child2.append(edge_child2)
-            remove_gene(edge_child2)
-    return child1, child2
-
 def cycle_crossover(parent1, parent2):
     # Cycle Crossover (CX)
     size = len(parent1)
@@ -248,37 +207,29 @@ def cycle_crossover(parent1, parent2):
             child2[i] = parent1[i]
     return child1, child2
 
-def aex_crossover(parent1, parent2):
-    # Alternating Edges Crossover (AEX)
-    child1 = [parent1[0]]
-    child2 = [parent2[0]]
-    current_city = parent1[0]
-    # Alternate edges from parents
-    while len(child1) < len(parent1):
-        # Get the next city in parent1
-        next_city_parent1 = parent1[(parent1.index(current_city) + 1) % len(parent1)]
-        # Get the next city in parent2
-        next_city_parent2 = parent2[(parent2.index(current_city) + 1) % len(parent2)]
-        # Choose the next city for child1
-        if next_city_parent1 not in child1:
-            child1.append(next_city_parent1)
-            child2.append(next_city_parent1)
-            current_city = next_city_parent1
-        # Choose the next city for child2
-        elif next_city_parent2 not in child2:
-            child1.append(next_city_parent2)
-            child2.append(next_city_parent2)
-            current_city = next_city_parent2
-        # If both cities are already in the child, choose a random unvisited city from parent1 for child2
-        else:
-            remaining_cities = [city for city in parent1 if city not in child1]
-            random_city = np.random.choice(remaining_cities)
-            child1.append(random_city)
-            child2.append(random_city)
-            current_city = random_city
-    return child1, child2
-
 ''' Mutations and mutation function '''
+def mutate(chromosome):
+    # Check if mutation should occur based on the mutation rate
+    if random.random() < mutation_rate:
+        # Select a mutation type randomly from swap, reverse, shuffle
+        mutation_type = random.choice(["swap", "reverse", "shuffle", "insertion", "displacement", "cim", "creep"])
+        # Apply the selected mutation type
+        if mutation_type == "swap":
+            return swap_mutation(chromosome)
+        elif mutation_type == "reverse":
+            return reverse_sequence_mutation(chromosome)
+        elif mutation_type == "shuffle":
+            return shuffle_mutation(chromosome)
+        elif mutation_type == "insertion":
+            return insertion_mutation(chromosome)
+        elif mutation_type == "displacement":
+            return displacement_mutation(chromosome)
+        elif mutation_type == "cim":
+            return cim_mutation(chromosome)
+        elif mutation_type == "creep":
+            return creep_mutation(chromosome)      
+    return chromosome
+
 def swap_mutation(chromosome):
     # Randomly select two distinct indices for mutation
     idx1, idx2 = random.sample(range(num_customers), 2)
@@ -306,22 +257,52 @@ def shuffle_mutation(chromosome):
     chromosome[start_idx:end_idx + 1] = subset
     return chromosome
 
-def mutate(chromosome):
-    # Check if mutation should occur based on the mutation rate
-    if random.random() < mutation_rate:
-        # Select a mutation type randomly from swap, reverse, shuffle
-        mutation_type = random.choice(["swap", "reverse", "shuffle"])
-        # Apply the selected mutation type
-        if mutation_type == "swap":
-            return swap_mutation(chromosome)
-        elif mutation_type == "reverse":
-            return reverse_sequence_mutation(chromosome)
-        elif mutation_type == "shuffle":
-            return shuffle_mutation(chromosome)
+def insertion_mutation(chromosome):
+    # Select a customer to be moved
+    customer = random.choice(chromosome)
+    chromosome.remove(customer)  # Remove the customer from its current position
+    # Choose a random position to insert the customer
+    insertion_index = random.randint(0, len(chromosome))
+    chromosome.insert(insertion_index, customer)  # Insert the customer at the new position
+    return chromosome
+
+def displacement_mutation(chromosome):
+    # Select a random subset of customers
+    subset_size = random.randint(2, len(chromosome) - 1)  # Ensure at least two customers are selected
+    subset_start = random.randint(0, len(chromosome) - subset_size)
+    subset_end = subset_start + subset_size
+    subset = chromosome[subset_start:subset_end]
+
+    # Remove the subset from the chromosome
+    del chromosome[subset_start:subset_end]
+
+    # Choose a random position to insert the subset
+    insertion_index = random.randint(0, len(chromosome))
+    chromosome[insertion_index:insertion_index] = subset  # Insert the subset at the new position
+    return chromosome
+
+def cim_mutation(chromosome):
+    # Select a central point in the chromosome
+    central_point = len(chromosome) // 2
+    # Reverse the sequence of customers around the central point
+    chromosome[central_point:] = reversed(chromosome[central_point:])
+    return chromosome
+
+def creep_mutation(chromosome):
+    # Select a customer
+    customer = random.choice(chromosome)
+    # Find the index of the customer
+    idx = chromosome.index(customer)
+    # Determine the direction of movement (left or right)
+    direction = random.choice([-1, 1])
+    # Perform creep mutation
+    if 0 <= idx + direction < len(chromosome):
+        chromosome[idx], chromosome[idx + direction] = chromosome[idx + direction], chromosome[idx]
     return chromosome
 
 ''' Main genetic algorithm function '''
 def genetic_algorithm():
+    start_time = time.time()
     best_fitnesses = []
     routes_lengths = []
     # Executes the genetic algorithm to solve the optimization problem
@@ -350,14 +331,15 @@ def genetic_algorithm():
     best_chromosome = max(population, key=lambda x: evaluate_fitness(x)[0])
     # Calculates fitness and routes for the best chromosome
     best_fitness, best_routes = evaluate_fitness(best_chromosome)
+    end_time = time.time()
+    print(f'Elapsed time: {end_time - start_time}s')
     return best_fitness, best_routes, best_fitnesses, route_init, routes_lengths
 
 ''' Ploting function '''
 def plot_routes(routes, title):
     plt.figure(num=title)
     # Plots the routes obtained from the genetic algorithm
-    colors = ['r', 'g', 'b', 'c', 'm', 'y', 'k']
-    color_names = ['red', 'green', 'blue', 'cyan', 'magenta', 'yellow', 'black']
+    colors = ['red', 'green', 'blue', 'cyan', 'magenta', 'pink', 'olive', 'orange', 'purple', 'brown', 'yellow', 'teal', 'maroon', 'navy', 'turquoise', 'lavender', 'indigo', 'silver', 'gold', 'plum', 'skyblue', 'coral', 'lime', 'violet']
     titles = []
     for idx, route in enumerate(routes):
         # Constructs route points for plotting
@@ -373,7 +355,7 @@ def plot_routes(routes, title):
                 plt.text(point[0], point[1], f'{customer_id}({demand})', color='black', fontsize=10)
         # Generates text for summarizing demands of each route if vehicle is used
         if sum(customer_demands[customer - 1] for customer in route) > 0:
-            route_demand_text = f'Sum of Demands for {color_names[idx]}: {sum(customer_demands[customer - 1] for customer in route)}({vehicle_capacities[idx]})'
+            route_demand_text = f'Sum of Demands for {colors[idx]}: {sum(customer_demands[customer - 1] for customer in route)}({vehicle_capacities[idx]})'
             titles.append(route_demand_text)   
     # Adds depot and customer locations to the plot
     plt.scatter(depot[0], depot[1], color='k', marker='s', label='Depot')
@@ -389,12 +371,11 @@ def plot_routes(routes, title):
 def main():
     # Main function to execute the genetic algorithm and plot the results
     best_fitness, best_routes, best_fitnesses, route_init, routes_lengths = genetic_algorithm()
-    
+    colors = ['red', 'green', 'blue', 'cyan', 'magenta', 'pink', 'olive', 'orange', 'purple', 'brown', 'yellow', 'teal', 'maroon', 'navy', 'turquoise', 'lavender', 'indigo', 'silver', 'gold', 'plum', 'skyblue', 'coral', 'lime', 'violet']
     # Prints the best route and its fitness
-    color_names = ['red', 'green', 'blue', 'cyan', 'magenta', 'yellow', 'black']
     for id, route in enumerate(best_routes):
         if len(route) != 0:
-            print(f"Route for {color_names[id]}: {route}")
+            print(f"Route for {colors[id]}: {route}")
     print("Best Fitness:", best_fitness)
 
     # Calculate total sum of all demands
@@ -410,10 +391,10 @@ def main():
     # Calculate total length traveled by all vehicles
     total_distance_traveled = sum(sum(distance_matrix[i][j] for i, j in zip(route, route[1:])) for route in best_routes)
     print("Total length traveled:", round(total_distance_traveled, 2))
-    
+
     # Plots the best routes
     plot_routes(best_routes, title=f'Best Routes, Total Length: {round(total_distance_traveled, 2)}')
-
+    
     # Plots the evolution of best fitness over generations
     plt.figure('Road length per Generation')
     plt.plot(routes_lengths)
@@ -429,6 +410,6 @@ def main():
     plt.xlabel('Generation')
     plt.ylabel('Fitness')
     plt.show()
-
+    
 if __name__ == "__main__":
     main()
