@@ -5,7 +5,7 @@ import time
 
 ''' Defining variables and necessary randomly generated parameters '''
 # Define the problem parameters
-num_customers = 15
+num_customers = 30
 max_vehicles = 20
 min_demand = 1
 max_demand = 20
@@ -31,7 +31,21 @@ customer_demands = np.random.randint(min_demand, max_demand, size=num_customers)
 " Vehicle capacities - user defined "
 # User input - vehicle_capacities [<vehicle1>, <cehicle2>, ...]
 vehicle_capacities = [100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100]
+plot_capacities = vehicle_capacities[:]
 
+" Vehicle capacities - optimal solution "
+def optimize_vehicles(max_vehicles, customer_demands, vehicle_capacities):
+    sum_demands = sum(customer_demands)
+    for i in range(max_vehicles):
+        sum_demands = sum_demands - vehicle_capacities[i]
+        if sum_demands < 0:
+            max_vehicles = i + 1
+            print(max_vehicles)
+            break
+    sum_demands = sum(customer_demands)
+    for j in range(max_vehicles - 1):
+        vehicle_capacities[j] = np.ceil(sum_demands/max_vehicles) + np.ceil(min_demand/max_vehicles)
+ 
 # Genetic Algorithm Parameters
 population_size = 50
 num_generations = 1000
@@ -52,6 +66,7 @@ for i in range(num_customers + 1):
 # Genetic Algorithm Functions
 def initialize_population():
     population = []
+    optimize_vehicles(max_vehicles, customer_demands, vehicle_capacities)
     for _ in range(population_size):
         chromosome = list(range(1, num_customers + 1))
         # Sorting customers by distance to the depot
@@ -355,7 +370,7 @@ def plot_routes(routes, title):
                 plt.text(point[0], point[1], f'{customer_id}({demand})', color='black', fontsize=10)
         # Generates text for summarizing demands of each route if vehicle is used
         if sum(customer_demands[customer - 1] for customer in route) > 0:
-            route_demand_text = f'Sum of Demands for {colors[idx]}: {sum(customer_demands[customer - 1] for customer in route)}({vehicle_capacities[idx]})'
+            route_demand_text = f'Sum of Demands for {colors[idx]}: {sum(customer_demands[customer - 1] for customer in route)}({plot_capacities[idx]})'
             titles.append(route_demand_text)   
     # Adds depot and customer locations to the plot
     plt.scatter(depot[0], depot[1], color='k', marker='s', label='Depot')
