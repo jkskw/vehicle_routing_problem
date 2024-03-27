@@ -122,11 +122,11 @@ def elitism(population):
 
 ''' Crossover functions '''
 def crossover(parent1, parent2):
-    crossover_type = random.choice(["OX", "PD", "PMX", "CX"])
+    crossover_type = random.choice(["OX", "AEX", "PMX", "CX"])
     if crossover_type == "OX":  # Order Crossover (OX) 
         return order_crossover(parent1, parent2)
-    if crossover_type == "PD":  # Partially Divided Crossover (PD) 
-        return pd_crossover(parent1,parent2)
+    if crossover_type == "AEX":  # Alternating Edges Crossover (AEX) 
+        return aex_crossover(parent1,parent2)
     elif crossover_type == "PMX":  # Partially Mapped Crossover (PMX) 
         return pmx_crossover(parent1, parent2)
     elif crossover_type == "CX":  # Cycle Crossover (CX) 
@@ -160,13 +160,28 @@ def order_crossover(parent1, parent2):
         idx_parent1 += 1
     return child1, child2
 
-def pd_crossover(parent1, parent2):
+def aex_crossover(parent1, parent2):
+    # Alternating Edges Crossover (AEX)
+    assert len(parent1) == len(parent2)
     # Randomly select a crossover point
-    crossover_point = random.randint(0, num_customers - 1)
-    # Perform crossover to create child1 by combining segments from parent1 and parent2
-    child1 = parent1[:crossover_point] + [gene for gene in parent2 if gene not in parent1[:crossover_point]]
-    # Perform crossover to create child2 by combining segments from parent2 and parent1
-    child2 = parent2[crossover_point:] + [gene for gene in parent1 if gene not in parent2[crossover_point:]]
+    crossover_point = random.randint(1, len(parent1) - 1)
+    # Create empty child routes
+    child1 = []
+    child2 = []
+    # Copy genes up to the crossover point from parents to children
+    child1.extend(parent1[:crossover_point])
+    child2.extend(parent2[:crossover_point])
+    # Add remaining genes to children in order of appearance in the other parent
+    for gene in parent2:
+        if gene not in child1:
+            child1.append(gene)
+        if len(child1) == len(parent1):
+            break
+    for gene in parent1:
+        if gene not in child2:
+            child2.append(gene)
+        if len(child2) == len(parent2):
+            break
     return child1, child2
 
 def pmx_crossover(parent1, parent2):
