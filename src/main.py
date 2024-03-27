@@ -122,7 +122,7 @@ def elitism(population):
 
 ''' Crossover functions '''
 def crossover(parent1, parent2):
-    crossover_type = random.choice(["OX", "AEX", "PMX", "CX"])
+    crossover_type = random.choice(["OX", "AEX", "PMX", "CX", "SPX"])
     if crossover_type == "OX":  # Order Crossover (OX) 
         return order_crossover(parent1, parent2)
     if crossover_type == "AEX":  # Alternating Edges Crossover (AEX) 
@@ -131,7 +131,18 @@ def crossover(parent1, parent2):
         return pmx_crossover(parent1, parent2)
     elif crossover_type == "CX":  # Cycle Crossover (CX) 
         return cycle_crossover(parent1, parent2)
+    elif crossover_type == "SPX":  # Single Point Crossover (SPX)
+        return spx_crossover(parent1, parent2)
     
+def spx_crossover(parent1, parent2):
+    # Single Point Crossover (SPX)
+    crossover_point = random.randint(0, num_customers - 1)
+    # Perform crossover to create child1 by combining segments from parent1 and parent2
+    child1 = parent1[:crossover_point] + [gene for gene in parent2 if gene not in parent1[:crossover_point]]
+    # Perform crossover to create child2 by combining segments from parent2 and parent1
+    child2 = parent2[crossover_point:] + [gene for gene in parent1 if gene not in parent2[crossover_point:]]
+    return child1, child2
+
 def order_crossover(parent1, parent2):
     # Order Crossover (OX)
     crossover_point1 = np.random.randint(0, len(parent1))
