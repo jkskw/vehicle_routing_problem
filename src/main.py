@@ -40,7 +40,6 @@ def optimize_vehicles(max_vehicles, customer_demands, vehicle_capacities):
         sum_demands = sum_demands - vehicle_capacities[i]
         if sum_demands < 0:
             max_vehicles = i + 1
-            print(max_vehicles)
             break
     sum_demands = sum(customer_demands)
     for j in range(max_vehicles - 1):
