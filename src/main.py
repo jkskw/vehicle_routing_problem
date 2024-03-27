@@ -5,12 +5,12 @@ import time
 
 ''' Defining variables and necessary randomly generated parameters '''
 # Define the problem parameters
-num_customers = 30
+num_customers = 12
 max_vehicles = 20
 min_demand = 1
 max_demand = 20
 # Depot location
-depot = (50, 50) 
+depot = (50, 50)
 
 " Customer locations and demands - randomly generated "
 customer_locations = np.random.rand(num_customers, 2) * 100
@@ -44,11 +44,11 @@ def optimize_vehicles(max_vehicles, customer_demands, vehicle_capacities):
             break
     sum_demands = sum(customer_demands)
     for j in range(max_vehicles - 1):
-        vehicle_capacities[j] = np.ceil(sum_demands/max_vehicles) + np.ceil(min_demand/max_vehicles)
+        vehicle_capacities[j] = np.ceil(sum_demands/max_vehicles)
  
 # Genetic Algorithm Parameters
 population_size = 50
-num_generations = 1000
+num_generations = 500
 mutation_rate = 0.1
 elite_percentage = 0.1
 
@@ -66,6 +66,7 @@ for i in range(num_customers + 1):
 # Genetic Algorithm Functions
 def initialize_population():
     population = []
+    # Comment if optimalization is not necessary
     optimize_vehicles(max_vehicles, customer_demands, vehicle_capacities)
     for _ in range(population_size):
         chromosome = list(range(1, num_customers + 1))
