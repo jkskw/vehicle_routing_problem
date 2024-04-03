@@ -43,7 +43,11 @@ def optimize_vehicles(max_vehicles, customer_demands, vehicle_capacities):
             break
     sum_demands = sum(customer_demands)
     for j in range(max_vehicles - 1):
-        vehicle_capacities[j] = np.ceil(sum_demands/max_vehicles)
+        if vehicle_capacities[j] < np.ceil(sum_demands/max_vehicles):
+            max_vehicles -= 1
+            sum_demands -= vehicle_capacities[j]
+        else:
+            vehicle_capacities[j] = np.ceil(sum_demands/max_vehicles)
  
 # Genetic Algorithm Parameters
 population_size = 50
@@ -68,10 +72,13 @@ def initialize_population():
     # Comment if optimalization is not necessary
     optimize_vehicles(max_vehicles, customer_demands, vehicle_capacities)
     for _ in range(population_size):
-        chromosome = list(range(1, num_customers + 1))
-        # Sorting customers by distance to the depot
-        chromosome.sort(key=lambda x: distance_matrix[0][x])
-        population.append(chromosome)
+        new_population = []
+        options = list(range(1, num_customers + 1))
+        for _ in range(num_customers):
+            rand = random.choice(options)
+            new_population.append(rand)
+            options.remove(rand)
+        population.append(new_population)
     return population
 
 ''' Fitness function '''
@@ -377,7 +384,7 @@ def genetic_algorithm():
     return best_fitness, best_routes, best_fitnesses, route_init, routes_lengths
 
 ''' Ploting function '''
-def plot_routes(routes, title):
+def plot_routes(routes, title, route_type):
     plt.figure(num=title)
     # Plots the routes obtained from the genetic algorithm
     colors = ['red', 'green', 'blue', 'cyan', 'magenta', 'pink', 'olive', 'orange', 'purple', 'brown', 'yellow', 'teal', 'maroon', 'navy', 'turquoise', 'lavender', 'indigo', 'silver', 'gold', 'plum', 'skyblue', 'coral', 'lime', 'violet']
@@ -395,7 +402,7 @@ def plot_routes(routes, title):
                 demand = customer_demands[customer_id - 1]
                 plt.text(point[0], point[1], f'{customer_id}({demand})', color='black', fontsize=10)
         # Generates text for summarizing demands of each route if vehicle is used
-        if sum(customer_demands[customer - 1] for customer in route) > 0:
+        if sum(customer_demands[customer - 1] for customer in route) != 0:
             route_demand_text = f'Sum of Demands for {colors[idx]}: {sum(customer_demands[customer - 1] for customer in route)}({plot_capacities[idx]})'
             titles.append(route_demand_text)   
     # Adds depot and customer locations to the plot
@@ -405,6 +412,7 @@ def plot_routes(routes, title):
     plt.ylabel('Y')
     # Sets the title based on the list of titles generated
     plt.title(', '.join(titles))
+    print(route_type + (', '.join(titles)))
     plt.legend()
     plt.draw()
 
@@ -412,29 +420,30 @@ def plot_routes(routes, title):
 def main():
     # Main function to execute the genetic algorithm and plot the results
     best_fitness, best_routes, best_fitnesses, route_init, routes_lengths = genetic_algorithm()
+    print("Best Fitness:", best_fitness)
+
     colors = ['red', 'green', 'blue', 'cyan', 'magenta', 'pink', 'olive', 'orange', 'purple', 'brown', 'yellow', 'teal', 'maroon', 'navy', 'turquoise', 'lavender', 'indigo', 'silver', 'gold', 'plum', 'skyblue', 'coral', 'lime', 'violet']
     # Prints the best route and its fitness
     for id, route in enumerate(best_routes):
         if len(route) != 0:
             print(f"Route for {colors[id]}: {route}")
-    print("Best Fitness:", best_fitness)
-
-    # Calculate total sum of all demands
-    print(f"Sum of all demands: {sum(customer_demands)}")
     
     # Calculate total initial length traveled by all vehicles
     init_length = sum(sum(distance_matrix[i][j] for i, j in zip(route, route[1:])) for route in route_init)
     print("Initial length traveled:", round(init_length, 2))
-    
-    # Plots the initial routes
-    plot_routes(route_init, title=f'Initial Routes, Total Length: {round(init_length, 2)}')
-    
+
     # Calculate total length traveled by all vehicles
     total_distance_traveled = sum(sum(distance_matrix[i][j] for i, j in zip(route, route[1:])) for route in best_routes)
     print("Total length traveled:", round(total_distance_traveled, 2))
 
+    # Calculate total sum of all demands
+    print(f"Sum of all demands: {sum(customer_demands)}")
+    
+    # Plots the initial routes
+    plot_routes(route_init, title=f'Initial Routes, Total Length: {round(init_length, 2)}', route_type='Initial Routes: ')
+
     # Plots the best routes
-    plot_routes(best_routes, title=f'Best Routes, Total Length: {round(total_distance_traveled, 2)}')
+    plot_routes(best_routes, title=f'Best Routes, Total Length: {round(total_distance_traveled, 2)}', route_type='Best Routes: ')
     
     # Plots the evolution of best fitness over generations
     plt.figure('Road length per Generation')
