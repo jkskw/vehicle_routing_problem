@@ -5,7 +5,7 @@ import time
 
 ''' Defining variables and necessary randomly generated parameters '''
 # Define the problem parameters
-num_customers = 12
+num_customers = 20
 max_vehicles = 20
 min_demand = 1
 max_demand = 20
@@ -99,7 +99,7 @@ def evaluate_fitness(chromosome):
     # Calculate total distance traveled by all vehicles
     total_distance = sum(sum(distance_matrix[i][j] for i, j in zip(route, route[1:]))for route in routes)
     # Return fitness value (reciprocal of total distance) and routes
-    return (1 / total_distance) if total_distance > 0 else float('-inf'), routes
+    return (1 / total_distance), routes
 
 ''' Selection function - tournament'''
 def selection(population):
@@ -138,7 +138,7 @@ def crossover(parent1, parent2):
     elif crossover_type == "CX":  # Cycle Crossover (CX) 
         return cycle_crossover(parent1, parent2)
     elif crossover_type == "SPX":  # Single Point Crossover (SPX)
-        return spx_crossover(parent1, parent2)
+        return spx_crossover(parent1, parent2)    
     
 def spx_crossover(parent1, parent2):
     # Single Point Crossover (SPX)
@@ -203,51 +203,41 @@ def aex_crossover(parent1, parent2):
 
 def pmx_crossover(parent1, parent2):
     # Partially Mapped Crossover (PMX)
-    size = len(parent1)
-    point1 = random.randint(0, size)
-    point2 = random.randint(0, size)
-    if point1 > point2:
-        point1, point2 = point2, point1
-    # Initialize the children as copies of the parents
-    child1 = parent1[:]
-    child2 = parent2[:]
-    # Copy the segment from parent1 to child2 and from parent2 to child1
-    child1[point1:point2] = parent1[point1:point2]
-    child2[point1:point2] = parent2[point1:point2]
-    # Update mapping for the segment
-    mapping1 = {}
-    mapping2 = {}
-    for i in range(point1, point2):
-        mapping1[parent1[i]] = parent2[i]
-        mapping2[parent2[i]] = parent1[i]
-    # Apply mapping for the rest of the genes
-    for i in range(size):
-        if point1 <= i < point2:
-            continue
-        while child1[i] in mapping1:
-            child1[i] = mapping1[child1[i]]
-        while child2[i] in mapping2:
-            child2[i] = mapping2[child2[i]]
+    # Randomly select two cut points
+    cut_point1 = random.randint(0, len(parent1) - 1)
+    cut_point2 = random.randint(0, len(parent1) - 1)
+    start_cut = min(cut_point1, cut_point2)
+    end_cut = max(cut_point1, cut_point2)
+    # Inherit values between the cut points from parent1 to child1
+    child1 = parent1[start_cut:end_cut]
+    # Fill remaining positions in child1 with values from parent2, avoiding duplicates
+    for gene in parent2:
+        if gene not in child1:
+            child1.append(gene)
+    # Repeat the process to generate child2
+    child2 = parent2[start_cut:end_cut]
+    for gene in parent1:
+        if gene not in child2:
+            child2.append(gene)
     return child1, child2
 
 def cycle_crossover(parent1, parent2):
     # Cycle Crossover (CX)
     size = len(parent1)
-    child1 = [-1] * size
-    child2 = [-1] * size
-    # Choose a random starting point
-    start = np.random.randint(0, size)
-    idx = start
+    child1, child2 = [-1] * size, [-1] * size
+    start_idx = 0
     while True:
-        # Perform cycle crossover
+        # Find the position of the start element in parent1
+        idx = parent1.index(parent2[start_idx])
+        # Add the corresponding elements to child1 and child2
         child1[idx] = parent1[idx]
         child2[idx] = parent2[idx]
-        if parent1[idx] == parent2[start]:
+        # Move to the next element in the cycle
+        start_idx = idx
+        # If we reached the start again, the cycle is complete
+        if start_idx == 0:
             break
-        idx = parent2.index(parent1[idx])
-        if idx == start:
-            break
-    # Swap the elements not yet assigned
+    # Fill in the remaining elements in child1 and child2
     for i in range(size):
         if child1[i] == -1:
             child1[i] = parent2[i]
