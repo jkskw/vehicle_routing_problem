@@ -5,7 +5,7 @@ import time
 
 ''' Defining variables and necessary randomly generated parameters '''
 # Define the problem parameters
-num_customers = 20
+num_customers = 12
 max_vehicles = 20
 min_demand = 1
 max_demand = 20
@@ -18,10 +18,10 @@ customer_demands = np.random.randint(min_demand, max_demand, size=num_customers)
 
 " Customer locations and demands - from file "
 # Localizations
-#np.savetxt('customer_locations.txt', customer_locations)
+# np.savetxt('customer_locations.txt', customer_locations)
 # customer_locations = np.loadtxt('customer_locations.txt')
 # Demands
-#np.savetxt('customer_demands.txt', customer_demands)
+# np.savetxt('customer_demands.txt', customer_demands)
 # customer_demands = np.loadtxt('customer_demands.txt')
 
 " Vehicles capacities - randomly generated "
@@ -30,7 +30,7 @@ customer_demands = np.random.randint(min_demand, max_demand, size=num_customers)
 
 " Vehicle capacities - user defined "
 # User input - vehicle_capacities [<vehicle1>, <cehicle2>, ...]
-vehicle_capacities = [100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100]
+vehicle_capacities = [10,50,10,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100]
 plot_capacities = vehicle_capacities[:]
 
 " Vehicle capacities - optimal solution "
@@ -375,7 +375,6 @@ def genetic_algorithm():
 
 ''' Ploting function '''
 def plot_routes(routes, title, route_type):
-    plt.figure(num=title)
     # Plots the routes obtained from the genetic algorithm
     colors = ['red', 'green', 'blue', 'cyan', 'magenta', 'pink', 'olive', 'orange', 'purple', 'brown', 'yellow', 'teal', 'maroon', 'navy', 'turquoise', 'lavender', 'indigo', 'silver', 'gold', 'plum', 'skyblue', 'coral', 'lime', 'violet']
     titles = []
@@ -401,7 +400,7 @@ def plot_routes(routes, title, route_type):
     plt.xlabel('X')
     plt.ylabel('Y')
     # Sets the title based on the list of titles generated
-    plt.title(', '.join(titles))
+    #plt.title(', '.join(titles))
     print(route_type + (', '.join(titles)))
     plt.legend()
     plt.draw()
@@ -430,25 +429,32 @@ def main():
     print(f"Sum of all demands: {sum(customer_demands)}")
     
     # Plots the initial routes
+    plt.figure(figsize=(10,5))
+    plt.subplot(1, 2, 1)
     plot_routes(route_init, title=f'Initial Routes, Total Length: {round(init_length, 2)}', route_type='Initial Routes: ')
-
+    plt.subplot(1, 2, 2)
     # Plots the best routes
     plot_routes(best_routes, title=f'Best Routes, Total Length: {round(total_distance_traveled, 2)}', route_type='Best Routes: ')
     
     # Plots the evolution of best fitness over generations
-    plt.figure('Road length per Generation')
+    #plt.figure('Road length per Generation')
+    plt.figure(figsize=(10,5))
+    plt.subplot(1, 2, 1)
     plt.plot(routes_lengths)
     plt.title('Road length per Generation')
     plt.xlabel('Generation')
     plt.ylabel('Road length')
-    plt.draw()
+    plt.grid()
+    #plt.draw()
 
     # Plots the evolution of best fitness over generations
-    plt.figure('Best Fitness per Generation')
+    #plt.figure('Best Fitness per Generation')
+    plt.subplot(1, 2, 2)
     plt.plot(best_fitnesses)
     plt.title('Best Fitness per Generation')
     plt.xlabel('Generation')
     plt.ylabel('Fitness')
+    plt.grid()
     plt.show()
     
 if __name__ == "__main__":
