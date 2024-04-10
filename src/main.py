@@ -5,12 +5,18 @@ import time
 
 ''' Defining variables and necessary randomly generated parameters '''
 # Define the problem parameters
-num_customers = 12
+num_customers = 15
 max_vehicles = 20
 min_demand = 1
 max_demand = 20
 # Depot location
 depot = (50, 50)
+
+# Genetic Algorithm Parameters
+population_size = 50
+num_generations = 600
+mutation_rate = 0.1
+elite_percentage = 0.1
 
 " Customer locations and demands - randomly generated "
 customer_locations = np.random.rand(num_customers, 2) * 100
@@ -48,12 +54,6 @@ def optimize_vehicles(max_vehicles, customer_demands, vehicle_capacities):
             sum_demands -= vehicle_capacities[j]
         else:
             vehicle_capacities[j] = np.ceil(sum_demands/max_vehicles)
- 
-# Genetic Algorithm Parameters
-population_size = 50
-num_generations = 500
-mutation_rate = 0.1
-elite_percentage = 0.1
 
 # Distance array creation
 distance_matrix = np.zeros((num_customers + 1, num_customers + 1))
