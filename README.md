@@ -98,7 +98,7 @@ Below, you'll find a figure of the best routes identified by the genetic algorit
 <img src=".github/best_routes.png" width="600" height="600">
 </p>
 
-Below is a figure of the road length per generation. The best solution was found in 54th generation.
+Below is a figure of the road length per generation. The best solution was found in 95th generation.
 
 <p align="center">
 <img src=".github/road_length.png" width="600" height="600">
