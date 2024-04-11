@@ -71,52 +71,58 @@ The replacement strategy is constructed such that a selection of tournament offs
 • When the car's capacity is below the average optimized for each car, the car is used to its maximum capacity and the rest are filled to the optimal value.
 
 ## Example solutions
+
 **VRP example**
-This section presents an example of a VRP in which the goal is to minimize the longest single route.
+This section presents an example of a VRP in which the goal is to minimize the longest single route. Below, you'll find a GIF demonstrating the genetic algorithm solving the VRP problem.
+
+<p align="center">
+<img src=".github/VRP.gif" width="600" height="600">
+</p>
+
 
 Imagine a situation in which a company needs to effectively visit its customers scattered throughout a city arranged in uniform rectangular blocks. Below is a figure of the city grid, with the company's depot in black and customer locations in blue. Each customer is marked with a number next to which the load is indicated in brackets.
 
 <p align="center">
-<img src=".github/start.png">
+<img src=".github/start.png" width="600" height="600">
 </p>
 
-Below is a figure illustrating the initialization of routes. In the first generation, routes are chosen randomly as part of the genetic algorithm's initialization process. The initial length of all routes is 848.86.
+Below is a figure illustrating the initialization of routes. In the first generation, routes are chosen randomly as part of the genetic algorithm's initialization process. The initial length of all routes is 824.99.
 
 <p align="center">
-<img src=".github/initial_routes.png">
+<img src=".github/initial_routes.png" width="600" height="600">
 </p>
 
 Below, you'll find a figure of the best routes identified by the genetic algorithm, total length of all routes is optimized to 212.63 units.
 
 <p align="center">
-<img src=".github/best_routes.png">
+<img src=".github/best_routes.png" width="600" height="600">
 </p>
 
 Below is a figure of the road length per generation. The best solution was found in 54th generation.
 
 <p align="center">
-<img src=".github/road_length.png">
+<img src=".github/road_length.png" width="600" height="600">
 </p>
 
 
-The console output serves as a confirmation of the solution's validity, offering key insights and routes details. It also displays the genetic algorithm's progress from the first to the 200th generation.
+The console output serves as a confirmation of the solution's validity, offering key insights and routes details. It also displays the genetic algorithm's progress from the first to the 100th generation.
 ```
-Generation 1, Best Fitness: 0.002242425632031495, Route Length: 848.86
+Generation 1, Best Fitness: 0.002242425632031495, Route Length: 824.99
                                 .
                                 .
                                 .
-Generation 200, Best Fitness: 0.004702955307627635, Route Length: 212.63
-Elapsed time: 2.093742847442627s
-Best Fitness: 0.004702955307627635
-Route for red: [10, 7, 5, 4]
-Route for green: [6, 9, 8, 12]
-Route for blue: [16, 11, 3, 2]
-Route for cyan: [1, 14, 13, 15]
-Initial length traveled: 848.86
+Generation 100, Best Fitness: 0.004702955307627635, Route Length: 212.63
+Elapsed time: 1.093742847442627s
+Best Fitness: 0.004702955307627634
+Route for red: [1, 14, 13, 15]
+Route for green: [12, 8, 9, 6]
+Route for blue: [10, 7, 5, 4]
+Route for cyan: [16, 11, 3, 2]
+Initial length traveled: 824.99
 Total length traveled: 212.63
 Sum of all demands: 166.0
-Initial Routes: Sum of Demands for red: 40.0(50), Sum of Demands for green: 42.0(50), Sum of Demands for blue: 41.0(50), Sum of Demands for cyan: 43.0(50)
-Best Routes: Sum of Demands for red: 41.0(50), Sum of Demands for green: 42.0(50), Sum of Demands for blue: 42.0(50), Sum of Demands for cyan: 41.0(50)
+Initial Routes: Sum of Demands for red: 41.0(50), Sum of Demands for green: 41.0(50), Sum of Demands for blue: 42.0(50), Sum of Demands for cyan: 42.0(50)
+Best Routes: Sum of Demands for red: 41.0(50), Sum of Demands for green: 42.0(50), Sum of Demands for blue: 41.0(50), Sum of Demands for cyan: 42.0(50)
 ```
 
 **Load optimization vs. maximum car load**
@@ -125,13 +131,13 @@ In this section, two different vehicle load distribution strategies will be pres
 The maximum car load approach focuses on filling each vehicle to its maximum capacity, ensuring efficient use of resources within set constraints. The routes can be found in the figure below.
 
 <p align="center" id="maximum">
-<img src=".github/without_optimize.png">
+<img src=".github/without_optimize.png" width="600" height="600">
 </p>
 
 As an option, the system can evenly distribute cargo between vehicles, ensuring that each carries a similar amount of cargo. Below is a graphical representation illustrating the optimized distribution of routes.
 
 <p align="center" id="optimize">
-<img src=".github/with_optimize.png">
+<img src=".github/with_optimize.png" width="600" height="600">
 </p>
 
 ## License
