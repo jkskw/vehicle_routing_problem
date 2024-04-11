@@ -79,6 +79,7 @@ Imagine a situation in which a company needs to effectively visit its customers 
 <p align="center">
 <img src=".github/start.png">
 </p>
+
 Below is a figure illustrating the initialization of routes. In the first generation, routes are chosen randomly as part of the genetic algorithm's initialization process. The initial length of all routes is 848.86.
 
 <p align="center">
