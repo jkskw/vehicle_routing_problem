@@ -75,18 +75,24 @@ The replacement strategy is constructed such that a selection of tournament offs
 This section presents an example of a VRP in which the goal is to minimize the longest single route.
 
 Imagine a situation in which a company needs to effectively visit its customers scattered throughout a city arranged in uniform rectangular blocks. Below is a figure of the city grid, with the company's depot in black and customer locations in blue. Each customer is marked with a number next to which the load is indicated in brackets.
+
 <p align="center">
 <img src=".github/start.png">
 </p>
 Below is a figure illustrating the initialization of routes. In the first generation, routes are chosen randomly as part of the genetic algorithm's initialization process. The initial length of all routes is 848.86.
+
 <p align="center">
 <img src=".github/initial_routes.png">
 </p>
+
 Below, you'll find a figure of the best routes identified by the genetic algorithm, total length of all routes is optimized to 212.63 units.
+
 <p align="center">
 <img src=".github/best_routes.png">
 </p>
+
 Below is a figure of the road length per generation. The best solution was found in 54th generation.
+
 <p align="center">
 <img src=".github/road_length.png">
 </p>
@@ -116,10 +122,13 @@ Best Routes: Sum of Demands for red: 41.0(50), Sum of Demands for green: 42.0(50
 In this section, two different vehicle load distribution strategies will be presented.
 
 The maximum car load approach focuses on filling each vehicle to its maximum capacity, ensuring efficient use of resources within set constraints. The routes can be found in the figure below.
+
 <p align="center" id="maximum">
 <img src=".github/without_optimize.png">
 </p>
+
 As an option, the system can evenly distribute cargo between vehicles, ensuring that each carries a similar amount of cargo. Below is a graphical representation illustrating the optimized distribution of routes.
+
 <p align="center" id="optimize">
 <img src=".github/with_optimize.png">
 </p>
